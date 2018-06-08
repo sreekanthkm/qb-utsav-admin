@@ -32,10 +32,10 @@
           {{data.index + 1}}
         </template>
         <template slot="actions" slot-scope="row">
-          <b-button variant="primary" size="sm" @click="edit(row.index)" class="mr-1">
+          <b-button variant="primary" size="sm" @click="edit(row.item)" class="mr-1">
             Edit
           </b-button>
-          <b-button variant="danger" size="sm" @click="remove(row.index)" class="mr-1">
+          <b-button variant="danger" size="sm" @click="remove(row.item)" class="mr-1">
             Remove
           </b-button>
         </template>
@@ -97,22 +97,22 @@
         fields,
         filter: null,
         selectedUser: {},
-        selectedIndex: -1,
+        isEditing: false,
         file: null
       };
     },
     methods: {
       add() {
-        this.selectedIndex = -1;
-        this.selectedUser = {isAllocated: false};
+        this.isEditing = false;
+        this.selectedUser = { isAllocated: false };
         this.$refs.editUserModal.show();
       },
-      remove(index) {
-        this.$store.dispatch(REMOVE_USER, index);
+      remove(row) {
+        this.$store.dispatch(REMOVE_USER, row);
       },
-      edit(index) {
-        this.selectedIndex = index;
-        this.selectedUser = this.users[index];
+      edit(row) {
+        this.isEditing = true;
+        this.selectedUser = Object.assign({}, row);
         this.$refs.editUserModal.show();
       },
       onAllocationChange(evt) {
@@ -124,10 +124,11 @@
       handleOk(evt) {
         evt.preventDefault();
         if (!this.selectedUser.isAllocated || this.selectedUser.team && this.selectedUser.price) {
-          if (this.selectedIndex === -1) {
-            this.$store.dispatch(ADD_USER, this.selectedUser);
+          if (this.isEditing) {
+            this.filter = '';
+            this.$store.dispatch(SET_USER, this.selectedUser);
           } else {
-            this.$store.dispatch(SET_USER, this.selectedUser, this.selectedIndex);
+            this.$store.dispatch(ADD_USER, this.selectedUser);
           }
           this.$refs.editUserModal.hide();
         }
