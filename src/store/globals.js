@@ -50,26 +50,26 @@ const actions = {
   [SET_USERS](context) {
     context.commit(UPDATE_USERS, users);
   },
-  [SET_USER](context, user, index) {
-    context.commit(UPDATE_USER, user, index);
+  [SET_USER](context, user) {
+    context.commit(UPDATE_USER, user);
   },
   [ADD_USER](context, user) {
     context.commit(PUSH_USER, user);
   },
-  [REMOVE_USER](context, index) {
-    context.commit(DELETE_USER, index);
+  [REMOVE_USER](context, user) {
+    context.commit(DELETE_USER, user);
   },
   [SET_TEAMS](context) {
     context.commit(UPDATE_TEAMS, teams);
   },
-  [SET_TEAM](context, team, index) {
-    context.commit(UPDATE_TEAM, team, index);
+  [SET_TEAM](context, team) {
+    context.commit(UPDATE_TEAM, team);
   },
   [ADD_TEAM](context, team) {
     context.commit(PUSH_TEAM, team);
   },
-  [REMOVE_TEAM](context, index) {
-    context.commit(DELETE_TEAM, index);
+  [REMOVE_TEAM](context, team) {
+    context.commit(DELETE_TEAM, team);
   }
 };
 
@@ -80,17 +80,29 @@ const mutations = {
   [UPDATE_TEAMS](state, teams) {
     state.teams = teams;
   },
-  [UPDATE_TEAM](state, team, index) {
-    state.teams[index] = team;
+  [UPDATE_TEAM](state, team) {
+    const indexToUpdate = state.teams.findIndex(teamObj => {
+      return team.id === teamObj.id;
+    });
+    state.teams[indexToUpdate] = team;
   },
-  [UPDATE_USER](state, user, index) {
-    state.users[index] = user;
+  [UPDATE_USER](state, user) {
+    const indexToUpdate = state.users.findIndex(userObj => {
+      return user.employee_id === userObj.employee_id;
+    });
+    state.users[indexToUpdate] = user;
   },
-  [DELETE_TEAM](state, index) {
-    state.teams.splice(index, 1);
+  [DELETE_TEAM](state, obj) {
+    const indexToDelete = state.teams.findIndex((team) => {
+      return obj.id === team.id;
+    });
+    state.teams.splice(indexToDelete, 1);
   },
-  [DELETE_USER](state, index) {
-    state.users.splice(index, 1);
+  [DELETE_USER](state, obj) {
+    const indexToDelete = state.users.findIndex((user) => {
+      return obj.employee_id === user.employee_id;
+    });
+    state.users.splice(indexToDelete, 1);
   },
   [PUSH_TEAM](state, team) {
     state.teams.push(team);
