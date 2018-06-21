@@ -46,20 +46,20 @@
       <b-collapse id="collapse2" class="mt-2">
         <b-list-group>
           <b-list-group-item v-for="event in inProgress" :key="event.id">{{event.eventName}}
-            <b-button @click="edit(event)" variant="secondary">Edit</b-button>
-            <b-button v-b-modal.del @click="setCurrentEvent(event)" variant="danger">Delete</b-button>         
+            <b-button v-b-modal.edit @click="setCurrentEvent(event)" variant="secondary">Edit</b-button>
+            <b-button v-b-modal.del @click="setCurrentEvent(event)" variant="danger">Delete</b-button>
           </b-list-group-item>
         </b-list-group>
       </b-collapse>
-    </b-card>
-    <b-modal id="del" title="Delete an event" ok-title="Yes" cancel-title="No" @ok="del(event)">
-      Are you sure you want to delete this event ?
-    </b-modal>   
+    </b-card>   
     <b-card>
       <b-btn v-b-toggle.collapse3 variant="warning">Show pending</b-btn>
       <b-collapse id="collapse3" class="mt-2">
         <b-list-group>
-          <b-list-group-item v-for="event in pending" :key="event.id">{{event.eventName}}</b-list-group-item>
+          <b-list-group-item v-for="event in pending" :key="event.id">{{event.eventName}}
+            <b-button v-b-modal.edit @click="setCurrentEvent(event)" variant="secondary">Edit</b-button>
+            <b-button v-b-modal.del @click="setCurrentEvent(event)" variant="danger">Delete</b-button>  
+          </b-list-group-item>        
         </b-list-group>
       </b-collapse>
     </b-card>
@@ -67,10 +67,34 @@
       <b-btn v-b-toggle.collapse4 variant="primary">Show Completed</b-btn>
       <b-collapse id="collapse4" class="mt-2">
         <b-list-group>
-          <b-list-group-item v-for="event in completed" :key="event.id">{{event.eventName}}</b-list-group-item>
+          <b-list-group-item v-for="event in completed" :key="event.id">{{event.eventName}}
+            <b-button v-b-modal.edit @click="setCurrentEvent(event)" variant="secondary">Edit</b-button>
+            <b-button v-b-modal.del @click="setCurrentEvent(event)" variant="danger">Delete</b-button>
+          </b-list-group-item>          
         </b-list-group>
       </b-collapse>
     </b-card>
+    <b-modal id="del" title="Delete an event" ok-title="Yes" cancel-title="No" @ok="del(event)">
+      Are you sure you want to delete this event ?
+    </b-modal>
+
+    <b-modal id="edit" title="Edit an event" ok-title="Yes" cancel-title="No" @ok="edit(form, event)">
+        <b-form v-if="show" class="add-event">
+          <b-form-group id="levelsDropdown"
+                        label="Number of Levels:"
+                        label-for="levels">
+            <b-form-select id="levels"
+                          :options="levels"
+                          required
+                          v-model="form.levels">
+            </b-form-select>
+          </b-form-group>
+          <b-form-group label="<code>Status</code>">
+            <b-form-radio-group id="eventStatus" v-model="form.status" :options="Status" name="eventStatus">
+            </b-form-radio-group>
+          </b-form-group>          
+        </b-form>      
+    </b-modal>      
   </div>
 </template>
 
@@ -132,7 +156,10 @@
       pointType: null,
       points: [],
       status: 'pending',
-      id: null
+      id: null,
+      results: [],
+      fixtures: [],
+      levels: 0
   }; 
 
   const eventType = [
@@ -142,6 +169,8 @@
   const pointType = [
     { text: 'Select One', value: null },
     'Major Event', 'Monthly Event'];
+
+  const levels = [0,1,2,3,4,5,6,7,8,9,10];
 
   const Status = ['pending', 'in_progress', 'completed'];
 
@@ -155,7 +184,8 @@
         pointType,
         Status,
         show: true,
-        event: null
+        event: null,
+        levels
       };
     },
     computed: {
@@ -198,8 +228,15 @@
       setCurrentEvent (event) {
         this.event = event;
       },
-      edit (event) {
-        alert(JSON.stringify(event));
+      edit (eventEditForm, evt) {
+        //alert(JSON.stringify(event));
+        events.forEach(event => {
+          if(event.id === evt.id) {
+            event.levels = eventEditForm.levels;
+            event.status = eventEditForm.status;
+          }
+        })
+        console.log(events);
       },
       del (event) {
         events.splice(events.findIndex(e => e.id === event.id),1);
