@@ -42,16 +42,22 @@
       </b-collapse>          
     </b-card>
     <b-card>
-      <b-btn v-b-toggle.collapse3 variant="success">Show In Progress</b-btn>
-      <b-collapse id="collapse3" class="mt-2">
+      <b-btn v-b-toggle.collapse2 variant="success">Show In Progress</b-btn>
+      <b-collapse id="collapse2" class="mt-2">
         <b-list-group>
-          <b-list-group-item v-for="event in inProgress" :key="event.id">{{event.eventName}}</b-list-group-item>
+          <b-list-group-item v-for="event in inProgress" :key="event.id">{{event.eventName}}
+            <b-button @click="edit(event)" variant="secondary">Edit</b-button>
+            <b-button v-b-modal.del @click="setCurrentEvent(event)" variant="danger">Delete</b-button>         
+          </b-list-group-item>
         </b-list-group>
       </b-collapse>
     </b-card>
+    <b-modal id="del" title="Delete an event" ok-title="Yes" cancel-title="No" @ok="del(event)">
+      Are you sure you want to delete this event ?
+    </b-modal>   
     <b-card>
-      <b-btn v-b-toggle.collapse2 variant="warning">Show pending</b-btn>
-      <b-collapse id="collapse2" class="mt-2">
+      <b-btn v-b-toggle.collapse3 variant="warning">Show pending</b-btn>
+      <b-collapse id="collapse3" class="mt-2">
         <b-list-group>
           <b-list-group-item v-for="event in pending" :key="event.id">{{event.eventName}}</b-list-group-item>
         </b-list-group>
@@ -106,7 +112,7 @@
     id: 5,
     eventName: 'Monthly Event June - FIFA Predictor',
     eventType: 'Individual Event',
-    status: 'pending',
+    status: 'in_progress',
     results: [],
     fixtures: [],
     points: [10,7,5]
@@ -148,7 +154,8 @@
         eventType,
         pointType,
         Status,
-        show: true
+        show: true,
+        event: null
       };
     },
     computed: {
@@ -187,7 +194,16 @@
         /* Trick to reset/clear native browser form validation state */
         this.show = false;
         this.$nextTick(() => { this.show = true });
-      }      
+      },
+      setCurrentEvent (event) {
+        this.event = event;
+      },
+      edit (event) {
+        alert(JSON.stringify(event));
+      },
+      del (event) {
+        events.splice(events.findIndex(e => e.id === event.id),1);
+      }
     }
   };
 </script>
