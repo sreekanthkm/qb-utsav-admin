@@ -32,9 +32,14 @@
                           v-model="form.pointType">
             </b-form-select>
           </b-form-group>
-          <b-form-group label="<code>Status</code>">
-            <b-form-radio-group id="eventStatus" v-model="form.status" :options="Status" name="eventStatus">
-            </b-form-radio-group>
+          <b-form-group id="eventStatusDropdown"
+                        label="<code>Status</code>"
+                        label-for="eventStatus">
+            <b-form-select id="eventStatus"
+                          :options="Status"
+                          required
+                          v-model="event.status">
+            </b-form-select>
           </b-form-group>          
           <b-button type="submit" variant="primary">Submit</b-button>
           <b-button type="reset" variant="danger">Reset</b-button>
@@ -74,11 +79,12 @@
         </b-list-group>
       </b-collapse>
     </b-card>
+
     <b-modal id="del" title="Delete an event" ok-title="Yes" cancel-title="No" @ok="del(event)">
       Are you sure you want to delete this event ?
     </b-modal>
 
-    <b-modal id="edit" title="Edit an event" ok-title="Yes" cancel-title="No" @ok="edit(form, event)">
+    <b-modal id="edit" title="Edit an event" ok-title="Yes" cancel-title="No" @ok="edit(event)">
         <b-form v-if="show" class="add-event">
           <b-form-group id="levelsDropdown"
                         label="Number of Levels:"
@@ -86,12 +92,17 @@
             <b-form-select id="levels"
                           :options="levels"
                           required
-                          v-model="form.levels">
+                          v-model="event.levels">
             </b-form-select>
           </b-form-group>
-          <b-form-group label="<code>Status</code>">
-            <b-form-radio-group id="eventStatus" v-model="form.status" :options="Status" name="eventStatus">
-            </b-form-radio-group>
+          <b-form-group id="eventStatusDropdown"
+                        label="<code>Status</code>"
+                        label-for="eventStatus">
+            <b-form-select id="eventStatus"
+                          :options="Status"
+                          required
+                          v-model="event.status">
+            </b-form-select>
           </b-form-group>          
         </b-form>      
     </b-modal>      
@@ -107,7 +118,8 @@
     status: 'in_progress',
     results: [],
     fixtures: [],
-    points: [15,10,7]
+    points: [15,10,7],
+    levels: 2
   }, {
     id: 2,
     eventName: 'Chess',
@@ -115,7 +127,8 @@
     status: 'pending',
     results: [],
     fixtures: [],
-    points: [15,10,7]
+    points: [15,10,7],
+    levels: 1
   }, {
     id: 3,
     eventName: 'Intro',
@@ -123,7 +136,8 @@
     status: 'completed',
     results: [['Heracles', 'Spartans'], 'Kratos', 'Olympus'],
     fixtures: [],
-    points: [15,10,7]
+    points: [15,10,7],
+    levels: 3
   }, {
     id: 4,
     eventName: 'NFS',
@@ -131,7 +145,8 @@
     status: 'pending',
     results: [],
     fixtures: [],
-    points: [10,7,5]
+    points: [10,7,5],
+    levels: 4
   }, {
     id: 5,
     eventName: 'Monthly Event June - FIFA Predictor',
@@ -139,7 +154,8 @@
     status: 'in_progress',
     results: [],
     fixtures: [],
-    points: [10,7,5]
+    points: [10,7,5],
+    levels: 5
   }, {
     id: 6,
     eventName: 'Monthly Event June - Photography Contest',
@@ -147,7 +163,8 @@
     status: 'completed',
     results: ['Heracles', 'Heracles', 'Spartans'],
     fixtures: [],
-    points: [10,7,5]
+    points: [10,7,5],
+    levels: 6
   }];
 
   const form = {
@@ -184,7 +201,7 @@
         pointType,
         Status,
         show: true,
-        event: null,
+        event: events[0],
         levels
       };
     },
@@ -228,15 +245,13 @@
       setCurrentEvent (event) {
         this.event = event;
       },
-      edit (eventEditForm, evt) {
-        //alert(JSON.stringify(event));
+      edit (evt) {
         events.forEach(event => {
           if(event.id === evt.id) {
-            event.levels = eventEditForm.levels;
-            event.status = eventEditForm.status;
+            event.levels = evt.levels;
+            event.status = evt.status;
           }
         })
-        console.log(events);
       },
       del (event) {
         events.splice(events.findIndex(e => e.id === event.id),1);
